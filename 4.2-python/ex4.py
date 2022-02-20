@@ -10,5 +10,3 @@ for domain in domains:
     print(domain + ' - ' + domains[domain])
   else:
     print ('[ERROR] ' + domain + ' IP mismatch: ' + domains[domain] + ' ' + ip)
-exit()
-
