@@ -83,6 +83,10 @@ sudo docker run -it --rm -d --name centos -v ~/devops/docker/data:/data andreymi
 sudo docker exec -it centos touch /data/test-file
 sudo docker exec -it centos bash -c "echo 'Hello Netology' > /data/test-file"
 
+Создаю файл с содержимым в локальной директории /data:
+echo "Hello again Netology" > data/test-file1
+
+Проверяю содержимое директории /data контейнера debian:
 sudo docker exec -it debian ls /data/
 test-file  test-file1
 
