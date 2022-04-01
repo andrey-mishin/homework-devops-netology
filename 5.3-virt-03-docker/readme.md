@@ -60,16 +60,33 @@ regisrty есть, возможность делать pull и push образо
 - Добавьте еще один файл в папку ```/data``` на хостовой машине;
 - Подключитесь во второй контейнер и отобразите листинг и содержание файлов в ```/data``` контейнера.
 
-## Задача 4 (*)
+### Ответ
+```
+Решил сделать образы Centos и Debian со своими тэгами.
 
-Воспроизвести практическую часть лекции самостоятельно.
+baloo@pc:~/devops/docker$ cat centos7/Dockerfile
+FROM centos:centos7
+baloo@pc:~/devops/docker$ cat debian/Dockerfile
+FROM debian:stable-slim
 
-Соберите Docker образ с Ansible, загрузите на Docker Hub и пришлите ссылку вместе с остальными ответами к задачам.
+Собираю образы:
+sudo docker build -t andreymishin/netology:debian1 .
+sudo docker build -t andreymishin/netology:centos7-1 .
 
+Создал директорию /data в ~/devops/docker на локальной машине.
 
----
+Запускаю контейнеры:
+sudo docker run -it --rm -d --name debian -v ~/devops/docker/data:/data andreymishin/netology:debian1
+sudo docker run -it --rm -d --name centos -v ~/devops/docker/data:/data andreymishin/netology:centos7-1
 
-### Как cдавать задание
+Создаю файл в директории /data контейнера centos и наполняю файл содержимым:
+sudo docker exec -it centos touch /data/test-file
+sudo docker exec -it centos bash -c "echo 'Hello Netology' > /data/test-file"
 
-Выполненное домашнее задание пришлите ссылкой на .md-файл в вашем репозитории.
+sudo docker exec -it debian ls /data/
+test-file  test-file1
 
+sudo docker exec -it debian bash -c "cat /data/test-file*"
+Hello Netology
+Hello again Netology
+```
