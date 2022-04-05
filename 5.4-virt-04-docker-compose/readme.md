@@ -16,7 +16,7 @@ baloo@pc:~/devops/packer$ yc compute image list
 | fd88t8r0n497vfbogcqs | centos-7-base | centos | f2esd9f5o5i9p7pkkk8k | READY  |
 +----------------------+---------------+--------+----------------------+--------+
 ```
-![alt text](https://github.com/andrey-mishin/homework-devops-netology/blob/5.4-virt-04-docker-compose/img/yc-image.png?raw=true)
+![alt text](https://github.com/andrey-mishin/homework-devops-netology/blob/main/5.4-virt-04-docker-compose/img/yc-image.png?raw=true)
 
 ## Задача 2
 
