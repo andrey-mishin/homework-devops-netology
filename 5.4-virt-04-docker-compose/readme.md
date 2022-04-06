@@ -27,9 +27,10 @@ baloo@pc:~/devops/packer$ yc compute image list
 - Скриншот страницы свойств созданной ВМ.
 
 ### Ответ
-```
-```
 
+<p align="center">
+  <img width="1200" height="600" src="./img/vm.png">
+</p>
 
 ## Задача 3
 
@@ -40,6 +41,7 @@ baloo@pc:~/devops/packer$ yc compute image list
 Скриншот работающего веб-интерфейса Grafana с текущими метриками.
 
 ### Ответ
-```
-```
 
+<p align="center">
+  <img width="1200" height="600" src="./img/grafana.png">
+</p>
