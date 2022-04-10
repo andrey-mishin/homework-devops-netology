@@ -43,7 +43,5 @@ docker service ls
 ### Ответ
 
 <p align="center">
-  <img width="1200" height="182" src="./img/ex3">
+  <img width="1200" height="182" src="./img/ex3.png">
 </p>
-
-
