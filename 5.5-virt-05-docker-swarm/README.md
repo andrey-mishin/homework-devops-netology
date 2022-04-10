@@ -41,6 +41,9 @@ docker service ls
 ```
 
 ### Ответ
-![alt text](https://github.com/andrey-mishin/homework-devops-netology/blob/main/5.5-virt-05-docker-swarm/img/ex3.png?raw=true)
+
+<p align="center">
+  <img width="1200" height="182" src="./img/ex3">
+</p>
 
 
