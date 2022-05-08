@@ -271,3 +271,15 @@ Filter - это условие WHERE, которое применено как �
 
 Приведите список операций, который вы применяли для бэкапа данных и восстановления. 
 
+### Ответ
+```
+pg_dump -U postgres -h localhost test_db > ./backup/test_db
+sudo docker run -it -d --rm --name postgres -e POSTGRES_HOST_AUTH_METHOD=trust \
+> -v ~/devops/6.2-db-02-sql/ex1/backup:/var/lib/postgresql/backup \
+> -p 5432:5432 \
+> postgres:12
+createdb -U postgres -h localhost -T template0 test_db
+psql -U postgres -h localhost test_db < ./backup/test_db
+# пользователей test-admin-user и test-simple-user перед восстановлением БД из backup не создавалось, 
+поэтому при восстановлении БД возникли ошибки, но все таблицы создались корректно. БД была восстановлена.
+```
