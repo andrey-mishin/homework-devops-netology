@@ -72,6 +72,37 @@ mysql> SELECT * FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE USER='test';
 - на `MyISAM`
 - на `InnoDB`
 
+### Ответ
+```
+1. Исследуйте, какой `engine` используется в таблице БД `test_db` и **приведите в ответе**.
+
+mysql> SHOW TABLE STATUS\G;
+*************************** 1. row ***************************
+           Name: orders
+         Engine: InnoDB
+        Version: 10
+     Row_format: Dynamic
+
+Используемый Engine = InnoDB.
+
+2. Измените `engine` и **приведите время выполнения и запрос на изменения из профайлера в ответе**:
+- на `MyISAM`
+- на `InnoDB`
+
+mysql> SHOW PROFILES;
++----------+------------+------------------------------------+
+| Query_ID | Duration   | Query                              |
++----------+------------+------------------------------------+
+
+|       31 | 0.03259525 | ALTER TABLE orders ENGINE = MyISAM |
+|       32 | 0.04154025 | ALTER TABLE orders ENGINE = InnoDB |
++----------+------------+------------------------------------+
+15 rows in set, 1 warning (0,00 sec)
+
+Время изменения Engine на MyISAM = 0.03259525.
+Время изменения Engine на InnoDB = 0.04154025.
+```
+
 ## Задача 4 
 
 Изучите файл `my.cnf` в директории /etc/mysql.
