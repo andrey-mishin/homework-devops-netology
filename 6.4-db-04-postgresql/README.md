@@ -43,7 +43,7 @@
 
 ### Ответ
 ```
-test_database=# select attname, avg_width from pg_stats where tablename = 'orders';
+test_database=# SELECT attname, avg_width FROM pg_stats WHERE tablename = 'orders';
  attname | avg_width
 ---------+-----------
  id      |         4
@@ -65,12 +65,12 @@ test_database=# select attname, avg_width from pg_stats where tablename = 'order
 ```
 # Транзакция 
 
-begin;
-create table orders_1 (CHECK ( price > 499 ) ) INHERITS (orders);
-alter table only public.orders_1 add constraint orders_1_pkey primary key (id);
-create table orders_2 (CHECK ( price <= 499 ) ) INHERITS (orders);
-alter table only public.orders_2 add constraint orders_2_pkey primary key (id);
-commit;
+BEGIN;
+CREATE TABLE orders_1 (CHECK ( price > 499 ) ) INHERITS (orders);
+ALTER TABLE ONLY public.orders_1 ADD CONSTRAINT orders_1_pkey PRIMARY KEY (id);
+CREATE TABLE orders_2 (CHECK ( price <= 499 ) ) INHERITS (orders);
+ALTER TABLE ONLY public.orders_2 ADD CONSTRAINT orders_2_pkey PRIMARY KEY (id);
+COMMIT;
 ```
 ```
 # Можно ли было изначально исключить "ручное" разбиение при проектировании таблицы orders?
@@ -87,3 +87,19 @@ commit;
 
 Как бы вы доработали бэкап-файл, чтобы добавить уникальность значения столбца `title` для таблиц `test_database`?
 
+# Ответ
+```
+# Добавить в строку создания таблицы orders UNIQUE чтобы строка в итоге выглядела так:
+
+CREATE TABLE public.orders (
+    id integer NOT NULL,
+    title character varying(80) NOT NULL UNIQUE,
+    price integer DEFAULT 0
+);
+
+# Добавить строки с ограничениями на таблицы orders_1 и orders_2:
+
+ALTER TABLE ONLY public.orders_1 ADD CONSTRAINT orders_1_title_uniq UNIQUE (title);
+
+ALTER TABLE ONLY public.orders_2 ADD CONSTRAINT orders_2_title_uniq UNIQUE (title);
+```
