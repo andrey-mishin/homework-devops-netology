@@ -1,0 +1,139 @@
+# Домашнее задание к занятию "6.5. Elasticsearch"
+
+## Задача 1
+
+В этом задании вы потренируетесь в:
+- установке elasticsearch
+- первоначальном конфигурировании elastcisearch
+- запуске elasticsearch в docker
+
+Используя докер образ [centos:7](https://hub.docker.com/_/centos) как базовый и 
+[документацию по установке и запуску Elastcisearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/targz.html):
+
+- составьте Dockerfile-манифест для elasticsearch
+- соберите docker-образ и сделайте `push` в ваш docker.io репозиторий
+- запустите контейнер из получившегося образа и выполните запрос пути `/` c хост-машины
+
+Требования к `elasticsearch.yml`:
+- данные `path` должны сохраняться в `/var/lib`
+- имя ноды должно быть `netology_test`
+
+В ответе приведите:
+- текст Dockerfile манифеста
+- ссылку на образ в репозитории dockerhub
+- ответ `elasticsearch` на запрос пути `/` в json виде
+
+Подсказки:
+- возможно вам понадобится установка пакета perl-Digest-SHA для корректной работы пакета shasum
+- при сетевых проблемах внимательно изучите кластерные и сетевые настройки в elasticsearch.yml
+- при некоторых проблемах вам поможет docker директива ulimit
+- elasticsearch в логах обычно описывает проблему и пути ее решения
+
+Далее мы будем работать с данным экземпляром elasticsearch.
+
+### ПРОБЛЕМА:
+```
+При попытке собрать свой образ возникает ошибка:
+failed to create shim task: OCI runtime create failed: runc create failed: unable to start container 
+process: exec: "/bin/sh": stat /bin/sh: no such file or directory: unknown
+
+Ошибка возникает независимо от базового образа, который использую. Пробовал разные образы: centos:7, 
+centos:latest, ubuntu. Везде одно и то же.
+
+Возможно, ошибка в ENTRYPOINT и/или CMD. Но даже если их убрать сборка образа заказчивается той же 
+ошибкой.
+
+Dockerfile:
+FROM centos:7
+COPY ./elasticsearch-8.2.0 /
+RUN adduser elasticsearch && chown -R elasticsearch:elasticsearch /elasticsearch-8.2.0; \
+    mkdir /var/lib/elasticsearch && chown elasticsearch:elasticsearch /var/lib/elasticsearch; \
+    sed -i 's/#path.data: \/path\/to\/data/path.data: \/var\/lib\/elasticsearch/' /elasticsearch-8.2.0/config/elasticsearch.yml; \
+    sed -i 's/#path.logs: \/path\/to\/logs/path.logs: \/var\/lib\/elasticsearch/' /elasticsearch-8.2.0/config/elasticsearch.yml; \
+    sed -i 's/#node.name: node-1/node.name: netology_test/' /elasticsearch-8.2.0/config/elasticsearch.yml
+ENTRYPOINT ["su", "elasticsearch"]
+WORKDIR /elasticsearch-8.2.0/bin
+CMD ["./elasticsearch", "-d"]
+
+SH в исходных образах centos есть. Куда дальше копать не понятно. Гугление ни к чему не привело.
+
+При сборке образа только с директивой COPY без RUN, ENTRYPOINT и CMD всё проходит штатно, но при
+попытке запуска получившегося образа сновы получаю ошибку:
+Сам процесс:
+baloo@pc:~/devops/6.5-db-05-elasticsearch/docker$ sudo docker build -t andreymishin/netology:c7-es-22051806 .
+Sending build context to Docker daemon  1.116GB
+Step 1/2 : FROM centos:7
+ ---> eeb6ee3f44bd
+Step 2/2 : COPY ./elasticsearch-8.2.0 /
+ ---> Using cache
+ ---> d4f09fa88bb7
+Successfully built d4f09fa88bb7
+Successfully tagged andreymishin/netology:c7-es-22051806
+
+baloo@pc:~/devops/6.5-db-05-elasticsearch/docker$ sudo docker run -it --rm --name c7-es-22051806 andreymishin/netology:c7-es-22051806
+docker: Error response from daemon: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: exec: "/bin/bash": stat /bin/bash: no such file or directory: unknown.
+
+BASH и SH в исходных образах centos есть. Куда дальше копать не понятно. Гугление ни к чему не привело.
+
+Прошу помощи.
+```
+
+## Задача 2
+
+В этом задании вы научитесь:
+- создавать и удалять индексы
+- изучать состояние кластера
+- обосновывать причину деградации доступности данных
+
+Ознакомтесь с [документацией](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-create-index.html) 
+и добавьте в `elasticsearch` 3 индекса, в соответствии со таблицей:
+
+| Имя | Количество реплик | Количество шард |
+|-----|-------------------|-----------------|
+| ind-1| 0 | 1 |
+| ind-2 | 1 | 2 |
+| ind-3 | 2 | 4 |
+
+Получите список индексов и их статусов, используя API и **приведите в ответе** на задание.
+
+Получите состояние кластера `elasticsearch`, используя API.
+
+Как вы думаете, почему часть индексов и кластер находится в состоянии yellow?
+
+Удалите все индексы.
+
+**Важно**
+
+При проектировании кластера elasticsearch нужно корректно рассчитывать количество реплик и шард,
+иначе возможна потеря данных индексов, вплоть до полной, при деградации системы.
+
+## Задача 3
+
+В данном задании вы научитесь:
+- создавать бэкапы данных
+- восстанавливать индексы из бэкапов
+
+Создайте директорию `{путь до корневой директории с elasticsearch в образе}/snapshots`.
+
+Используя API [зарегистрируйте](https://www.elastic.co/guide/en/elasticsearch/reference/current/snapshots-register-repository.html#snapshots-register-repository) 
+данную директорию как `snapshot repository` c именем `netology_backup`.
+
+**Приведите в ответе** запрос API и результат вызова API для создания репозитория.
+
+Создайте индекс `test` с 0 реплик и 1 шардом и **приведите в ответе** список индексов.
+
+[Создайте `snapshot`](https://www.elastic.co/guide/en/elasticsearch/reference/current/snapshots-take-snapshot.html) 
+состояния кластера `elasticsearch`.
+
+**Приведите в ответе** список файлов в директории со `snapshot`ами.
+
+Удалите индекс `test` и создайте индекс `test-2`. **Приведите в ответе** список индексов.
+
+[Восстановите](https://www.elastic.co/guide/en/elasticsearch/reference/current/snapshots-restore-snapshot.html) состояние
+кластера `elasticsearch` из `snapshot`, созданного ранее. 
+
+**Приведите в ответе** запрос к API восстановления и итоговый список индексов.
+
+Подсказки:
+- возможно вам понадобится доработать `elasticsearch.yml` в части директивы `path.repo` и перезапустить `elasticsearch`
+
