@@ -31,49 +31,39 @@
 
 Далее мы будем работать с данным экземпляром elasticsearch.
 
-### ПРОБЛЕМА:
+### 
 ```
-При попытке собрать свой образ возникает ошибка:
-failed to create shim task: OCI runtime create failed: runc create failed: unable to start container 
-process: exec: "/bin/sh": stat /bin/sh: no such file or directory: unknown
+1. cat Dockerfile
+FROM centos:centos7
+COPY ./elasticsearch-8.2.0 /elasticsearch
+RUN adduser elasticsearch -s /bin/sh && chown -R elasticsearch:elasticsearch /elasticsearch; \
+    mkdir /var/lib/elasticsearch && chown elasticsearch:elasticsearch /var/lib/elasticsearch
+VOLUME /elasticsearch/config
+USER elasticsearch
+WORKDIR /elasticsearch/bin
+ENTRYPOINT ./elasticsearch
 
-Ошибка возникает независимо от базового образа, который использую. Пробовал разные образы: centos:7, 
-centos:latest, ubuntu. Везде одно и то же.
+2. https://hub.docker.com/layers/andreymishin/netology/centos7-es/images/sha256-e34128ea06b7499136a223adff29e1ef8ce02d4216f8115702f27b4bcf7669b0?context=explore
 
-Возможно, ошибка в ENTRYPOINT и/или CMD. Но даже если их убрать сборка образа заказчивается той же 
-ошибкой.
-
-Dockerfile:
-FROM centos:7
-COPY ./elasticsearch-8.2.0 /
-RUN adduser elasticsearch && chown -R elasticsearch:elasticsearch /elasticsearch-8.2.0; \
-    mkdir /var/lib/elasticsearch && chown elasticsearch:elasticsearch /var/lib/elasticsearch; \
-    sed -i 's/#path.data: \/path\/to\/data/path.data: \/var\/lib\/elasticsearch/' /elasticsearch-8.2.0/config/elasticsearch.yml; \
-    sed -i 's/#path.logs: \/path\/to\/logs/path.logs: \/var\/lib\/elasticsearch/' /elasticsearch-8.2.0/config/elasticsearch.yml; \
-    sed -i 's/#node.name: node-1/node.name: netology_test/' /elasticsearch-8.2.0/config/elasticsearch.yml
-ENTRYPOINT ["su", "elasticsearch"]
-WORKDIR /elasticsearch-8.2.0/bin
-CMD ["./elasticsearch", "-d"]
-
-При сборке образа только с директивой COPY без RUN, ENTRYPOINT и CMD всё проходит штатно, но при
-попытке запуска получившегося образа сновы получаю ошибку:
-Сам процесс:
-baloo@pc:~/devops/6.5-db-05-elasticsearch/docker$ sudo docker build -t andreymishin/netology:c7-es-22051806 .
-Sending build context to Docker daemon  1.116GB
-Step 1/2 : FROM centos:7
- ---> eeb6ee3f44bd
-Step 2/2 : COPY ./elasticsearch-8.2.0 /
- ---> Using cache
- ---> d4f09fa88bb7
-Successfully built d4f09fa88bb7
-Successfully tagged andreymishin/netology:c7-es-22051806
-
-baloo@pc:~/devops/6.5-db-05-elasticsearch/docker$ sudo docker run -it --rm --name c7-es-22051806 andreymishin/netology:c7-es-22051806
-docker: Error response from daemon: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: exec: "/bin/bash": stat /bin/bash: no such file or directory: unknown.
-
-BASH и SH в исходных образах centos есть. Куда дальше копать не понятно. Гугление ни к чему не привело.
-
-Прошу помощи.
+3. curl -u elastic http://localhost:9200/
+Enter host password for user 'elastic':
+{
+  "name" : "netology_test",
+  "cluster_name" : "elasticsearch",
+  "cluster_uuid" : "_na_",
+  "version" : {
+    "number" : "8.2.0",
+    "build_flavor" : "default",
+    "build_type" : "tar",
+    "build_hash" : "b174af62e8dd9f4ac4d25875e9381ffe2b9282c5",
+    "build_date" : "2022-04-20T10:35:10.180408517Z",
+    "build_snapshot" : false,
+    "lucene_version" : "9.1.0",
+    "minimum_wire_compatibility_version" : "7.17.0",
+    "minimum_index_compatibility_version" : "7.0.0"
+  },
+  "tagline" : "You Know, for Search"
+}
 ```
 
 ## Задача 2
