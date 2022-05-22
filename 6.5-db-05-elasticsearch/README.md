@@ -165,13 +165,13 @@ curl -X GET http://localhost:9200/_cluster/health?pretty
 1. Регистрация директории для snapshot:
 
 curl -X PUT "localhost:9200/_snapshot/netology_backup?pretty" -H 'Content-Type: application/json' -d'
-> {
->   "type": "fs",
->   "settings": {
->     "location": "/elasticsearch/snapshots"
->   }
-> }
-> '
+{
+  "type": "fs",
+  "settings": {
+    "location": "/elasticsearch/snapshots"
+  }
+}
+'
 {
   "acknowledged" : true
 }
