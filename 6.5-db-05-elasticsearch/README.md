@@ -31,7 +31,7 @@
 
 Далее мы будем работать с данным экземпляром elasticsearch.
 
-### 
+### Ответ
 ```
 1. cat Dockerfile
 FROM centos:centos7
@@ -95,6 +95,41 @@ Enter host password for user 'elastic':
 При проектировании кластера elasticsearch нужно корректно рассчитывать количество реплик и шард,
 иначе возможна потеря данных индексов, вплоть до полной, при деградации системы.
 
+### Ответ
+```
+1. список и состояние индексов:
+
+curl -X GET http://localhost:9200/_cat/indices?v
+health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   ind-1 YaYV0zraS3ObRzY4T_GgVQ   1   0          0            0       225b           225b
+yellow open   ind-3 R9up5OFfT76DSht55M-62w   4   2          0            0       900b           900b
+yellow open   ind-2 Iqrmv8WSRI6w7cR2cHh_tQ   2   1          0            0       450b           450b
+
+2. состояние кластера ES:
+
+curl -X GET http://localhost:9200/_cluster/health?pretty
+{
+  "cluster_name" : "elasticsearch",
+  "status" : "yellow",
+  "timed_out" : false,
+  "number_of_nodes" : 1,
+  "number_of_data_nodes" : 1,
+  "active_primary_shards" : 8,
+  "active_shards" : 8,
+  "relocating_shards" : 0,
+  "initializing_shards" : 0,
+  "unassigned_shards" : 10,
+  "delayed_unassigned_shards" : 0,
+  "number_of_pending_tasks" : 0,
+  "number_of_in_flight_fetch" : 0,
+  "task_max_waiting_in_queue_millis" : 0,
+  "active_shards_percent_as_number" : 44.44444444444444
+}
+
+3. Индексы ind-2/3 находятся в состоянии yellow, т.к. эти индексы сконфигурены с наличием реплик, которые 
+должны располагаться на другой ноде, но мой кластер состоит только из одной ноды.
+Из-за того, что часть шардов в статусе UNASSIGNED весь кластер имеет состояние yellow.
+```
 ## Задача 3
 
 В данном задании вы научитесь:
@@ -125,3 +160,51 @@ Enter host password for user 'elastic':
 Подсказки:
 - возможно вам понадобится доработать `elasticsearch.yml` в части директивы `path.repo` и перезапустить `elasticsearch`
 
+### Ответ
+```
+1. Регистрация директории для snapshot:
+
+curl -X PUT "localhost:9200/_snapshot/netology_backup?pretty" -H 'Content-Type: application/json' -d'
+> {
+>   "type": "fs",
+>   "settings": {
+>     "location": "/elasticsearch/snapshots"
+>   }
+> }
+> '
+{
+  "acknowledged" : true
+}
+
+2. Создан индекс test
+
+curl -X GET http://localhost:9200/_cat/indices?v
+health status index uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   test  iQptQVLTSsGbwv9sPqKIqA   1   0          0            0       225b           225b
+
+3. Cписок файлов в директории со snapshot-ами:
+
+sudo docker exec -it c7-es /bin/bash
+[elasticsearch@d3ef1b40dd04 bin]$ ll ../snapshots/
+total 36
+-rw-r--r-- 1 elasticsearch elasticsearch   850 May 22 15:59 index-0
+-rw-r--r-- 1 elasticsearch elasticsearch     8 May 22 15:59 index.latest
+drwxr-xr-x 4 elasticsearch elasticsearch  4096 May 22 15:59 indices
+-rw-r--r-- 1 elasticsearch elasticsearch 18310 May 22 15:59 meta-zGNWea_TQmCcafezCUXKeQ.dat
+-rw-r--r-- 1 elasticsearch elasticsearch   357 May 22 15:59 snap-zGNWea_TQmCcafezCUXKeQ.dat
+
+4. Список индексов после удаления test и создания test-2:
+
+curl -X GET http://localhost:9200/_cat/indices?v
+health status index  uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+yellow open   test-2 85USm4qLSgySvdLIpk7BmQ   1   1          0            0       225b           225b
+
+5. Запрос к API восстановления и итоговый список индексов:
+
+curl -X POST http://localhost:9200/_snapshot/netology_backup/snapshot-22052201/_restore?pretty
+
+curl -X GET http://localhost:9200/_cat/indices?v
+health status index  uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+yellow open   test-2 85USm4qLSgySvdLIpk7BmQ   1   1          0            0       225b           225b
+green  open   test   emfG5dC3S-ScF2tmzQ57bw   1   0          0            0       225b           225b
+```
