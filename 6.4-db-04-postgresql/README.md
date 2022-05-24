@@ -75,9 +75,13 @@ COMMIT;
 ```
 # Можно ли было изначально исключить "ручное" разбиение при проектировании таблицы orders?
 
-Я не знаю как ответить на этот вопрос.
-Считаю, что нельзя было исключить "ручное" разбиение при проектировании - этот ответ, очевидно,
-неверный, но другого у меня нет.
+Можно:
+
+BEGIN;
+CREATE TABLE orders (id integer NOT NULL, title character varying(80) NOT NULL, price integer DEFAULT 0) PARTITION BY RANGE (price);
+CREATE TABLE orders_lower_500 PARTITION OF orders FOR VALUES FROM (MINVALUE) TO (500);
+CREATE TABLE orders_higher_500 PARTITION OF orders FOR VALUES FROM (500) TO (MAXVALUE);
+COMMIT;
 ```
 ## Задача 4
 
