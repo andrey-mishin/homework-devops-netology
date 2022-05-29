@@ -86,4 +86,9 @@ secret_key     ****************fu9m              env
 1. Свой ami образ можно создать с помощью инструмента Packer.
 2. Ссылка на репозиторий:
 https://github.com/andrey-mishin/devops-netology/tree/homework/terraform
+
+baloo@pc:~/.git/devops-netology/terraform$ terraform validate
+Success! The configuration is valid.
+
+terraform plan проходит без ошибок, ВМ в yandex-cloud запускается.
 ``` 
