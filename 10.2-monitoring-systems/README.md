@@ -198,8 +198,19 @@ Date: Wed, 04 Jan 2023 21:50:09 GMT
    
 ![Telegraf docker is absent screenshot](./files/docker.png)
     
-## Куда копать дальше не понимаю. Нужна ваша помощь.
- 
-
-**PS**: при использовании *telegraf:1.4.0* контейнер не запускается, поэтому использовал *latest*.
+### UPD:
+    
+Оказалось, что необходимо ещё добавить для остальных пользователей права на чтение и запись файлу */var/run/docker.sock*   
+   
+```
+baloo@pc:~/devops/sandbox$ ll /var/run/docker.sock 
+srw-rw---- 1 root docker 0 янв  4 15:39 /var/run/docker.sock=
+baloo@pc:~/devops/sandbox$ sudo chmod o+rw /var/run/docker.sock 
+[sudo] password for baloo: 
+baloo@pc:~/devops/sandbox$ ll /var/run/docker.sock 
+srw-rw-rw- 1 root docker 0 янв  4 15:39 /var/run/docker.sock=
+```
+  
+[Заработало](./files/docker-metrics.png):    
+![Telegraf docker](./files/docker-metrics.png)
 
