@@ -163,42 +163,6 @@ Date: Wed, 04 Jan 2023 21:50:09 GMT
 ```
       
 При запуске *sandbox* командой `./sandbox up` с настройками указанными выше метрик мониторинга *docker* не появляется.    
-
-Пробовал править конфиг [docker-compose.yml](./files/docker-compose-new.yml "docker-compose-new.yml") в соответствии с инструкцией в ДЗ.    
-Получился следующий конфиг:   
-```
-  telegraf:
-    # Full tag list: https://hub.docker.com/r/library/telegraf/tags/
-    build:
-      context: ./images/telegraf/
-      dockerfile: ./${TYPE}/Dockerfile
-      args:
-        TELEGRAF_TAG: ${TELEGRAF_TAG}
-    image: "telegraf"
-    privileged: true
-    environment:
-      HOSTNAME: "telegraf-getting-started"
-    # Telegraf requires network access to InfluxDB
-    links:
-      - influxdb
-    volumes:
-      # Mount for telegraf configuration
-      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:Z
-      # Mount for Docker API access
-      - /var/run/docker.sock:/var/run/docker.sock:Z
-    depends_on:
-      - influxdb
-    ports:
-      - "8092:8092/udp"
-      - "8094:8094"
-      - "8125:8125/udp"
-```
-    
-### Это не дало никакого результата. Метрики *docker* в *Measurements & Tags* не появляются.  
-   
-![Telegraf docker is absent screenshot](./files/docker.png)
-    
-### UPD:
     
 Оказалось, что необходимо ещё добавить для остальных пользователей права на чтение и запись файлу */var/run/docker.sock*   
    
