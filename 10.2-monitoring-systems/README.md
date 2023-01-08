@@ -118,7 +118,7 @@ Date: Wed, 04 Jan 2023 21:50:09 GMT
 - В *Measurments & Tags* выбрал *mem->host-1->telegraf-getting-started*, в *Fields* выбрал *used_percent*.   
 
 
-График утилизации оперативной памяти в контейнере telegraf представлен на [скриншоте](./files/telegraf_mem.png "mem.png")
+График утилизации оперативной памяти представлен на [скриншоте](./files/telegraf_mem.png "mem.png")
 ![Telegraf mem screenshot](./files/telegraf_mem.png)
 
 [Cкриншот](./files/telegraf_disk.png "disk.png") с отображением метрик утилизации места на диске *disk->host-1->telegraf-getting-started* из веб-интерфейса.  
