@@ -84,7 +84,7 @@ Handling connection for 10443
 
 ![dashboard](./files/dashboard.jpeg)  
   
-7. Самоподписанный сертификат создавал по это [инструкции](https://kubernetes.io/docs/tasks/administer-cluster/certificates/). Заменил исходные файлы (ca.crt, ca.key, ca.srl, server.crt, server.csr, server.key) вновь созданными, но `microk8s` отказался запускаться. После запуска, говорит, что не запущен:
+7. Самоподписанный сертификат создавал по это [инструкции](https://kubernetes.io/docs/tasks/administer-cluster/certificates/). Заменил исходные файлы (ca.crt, ca.key, ca.srl, server.crt, server.csr, server.key) в директории `/var/snap/microk8s/current/certs/` вновь созданными, но `microk8s` отказался запускаться. После запуска, говорит, что не запущен:
 ```bash
 baloo@pc:~$ microk8s status
 microk8s is not running. Use microk8s inspect for a deeper inspection.
